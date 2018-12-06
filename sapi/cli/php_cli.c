@@ -84,6 +84,7 @@
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
 #include "php_cli_server.h"
 #endif
+#include "php_cli_loop.h"
 
 #include "ps_title.h"
 #include "php_cli_process_title.h"
@@ -154,6 +155,7 @@ const opt_struct OPTIONS[] = {
 	{'h', 0, "help"},
 	{'i', 0, "info"},
 	{'l', 0, "syntax-check"},
+	{'L', 0, "loop"},
 	{'m', 0, "modules"},
 	{'n', 0, "no-php-ini"},
 	{'q', 0, "no-header"}, /* for compatibility with CGI (do not generate HTTP headers) */
@@ -521,6 +523,7 @@ static void php_cli_usage(char *argv0)
 				"  -h               This help\n"
 				"  -i               PHP information\n"
 				"  -l               Syntax check only (lint)\n"
+				"  -L               Loop mode\n"
 				"  -m               Show compiled in modules\n"
 				"  -r <code>        Run PHP <code> without using script tags <?..?>\n"
 				"  -B <begin_code>  Run PHP <begin_code> before processing input lines\n"
@@ -1323,6 +1326,9 @@ int main(int argc, char *argv[])
 			case 'e': /* enable extended info output */
 				use_extended_info = 1;
 				break;
+			case 'L':
+				sapi_module = &cli_loop_sapi_module;
+				break;
 		}
 	}
 exit_loop:
@@ -1388,8 +1394,10 @@ exit_loop:
 #endif
 			exit_status = do_cli(argc, argv);
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
-		} else {
+		} else if (sapi_module == &cli_server_sapi_module) {
 			exit_status = do_cli_server(argc, argv);
+		} else {
+			exit_status = do_cli_loop(argc, argv);
 		}
 #endif
 	} zend_end_try();
