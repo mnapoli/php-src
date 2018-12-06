@@ -269,7 +269,7 @@ static int php_cli_loop_run_script(const char *filename) /* {{{ */
 }
 /* }}} */
 
-static bool php_cli_loop_is_running = true;
+static int php_cli_loop_is_running = 1;
 
 static void php_cli_loop_sigint_handler(int sig) /* {{{ */
 {
