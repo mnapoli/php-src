@@ -230,7 +230,7 @@ sapi_module_struct cli_loop_sapi_module = {
 static int php_cli_loop_run_script(const char *filename) /* {{{ */
 {
 	int stop = 0;
-	zend_file_handle zfd;
+	zend_file_handle file_handle;
 	char *old_cwd;
 
 	ALLOCA_FLAG(use_heap)
@@ -238,17 +238,21 @@ static int php_cli_loop_run_script(const char *filename) /* {{{ */
 	old_cwd[0] = '\0';
 	php_ignore_value(VCWD_GETCWD(old_cwd, MAXPATHLEN - 1));
 
-	zfd.type = ZEND_HANDLE_FILENAME;
-	zfd.filename = filename;
-	zfd.handle.fp = NULL;
-	zfd.free_filename = 0;
-	zfd.opened_path = NULL;
+	file_handle.type = ZEND_HANDLE_FILENAME;
+	file_handle.filename = filename;
+	file_handle.handle.fp = NULL;
+	file_handle.free_filename = 0;
+	file_handle.opened_path = NULL;
+	if (!(file_handle.handle.fp = VCWD_FOPEN(filename, "rb"))) {
+		php_printf("Could not open input file: %s\n", filename);
+		return FAILURE;
+	}
 
 	zend_try {
         zval retval;
 
         ZVAL_UNDEF(&retval);
-        if (SUCCESS == zend_execute_scripts(ZEND_REQUIRE, &retval, 1, &zfd)) {
+        if (SUCCESS == zend_execute_scripts(ZEND_REQUIRE, &retval, 1, &file_handle)) {
             if (Z_TYPE(retval) != IS_UNDEF) {
                 // If it's `false` then stop
                 stop = Z_TYPE(retval) == IS_FALSE;
