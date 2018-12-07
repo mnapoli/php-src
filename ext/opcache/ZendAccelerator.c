@@ -2345,6 +2345,7 @@ static inline int accel_find_sapi(void)
 		"apache",
 		"fastcgi",
 		"cli-server",
+		"cli-loop",
 		"cgi-fcgi",
 		"fpm-fcgi",
 		"isapi",
@@ -2620,6 +2621,7 @@ static int accel_startup(zend_extension *extension)
 	if (ZCG(accel_directives).huge_code_pages &&
 	    (strcmp(sapi_module.name, "cli") == 0 ||
 	     strcmp(sapi_module.name, "cli-server") == 0 ||
+	     strcmp(sapi_module.name, "cli-loop") == 0 ||
 		 strcmp(sapi_module.name, "cgi-fcgi") == 0 ||
 		 strcmp(sapi_module.name, "fpm-fcgi") == 0)) {
 		accel_move_code_to_huge_pages();
