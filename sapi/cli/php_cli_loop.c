@@ -279,15 +279,25 @@ static void php_cli_loop_sigint_handler(int sig) /* {{{ */
 
 int do_cli_loop(int argc, char **argv) /* {{{ */
 {
+	extern const opt_struct OPTIONS[];
+	char *php_optarg = NULL;
+	int php_optind = 1;
+	int c;
     int stop = 0;
 	const char *script_name = NULL;
 
-	if (argc > 2) {
-		script_name = argv[2];
-	} else {
-        php_printf("You must provide a script to execute\n");
-		return 1;
+	// Read the script name from the `-L` option
+	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0, 2))!=-1) {
+		switch (c) {
+			case 'L':
+				script_name = php_optarg;
+				break;
+		}
 	}
+    if (!script_name) {
+        php_printf("You must provide a script to execute\n");
+        return 1;
+    }
 
 #if defined(HAVE_SIGNAL_H) && defined(SIGINT)
 	signal(SIGINT, php_cli_loop_sigint_handler);
@@ -295,9 +305,7 @@ int do_cli_loop(int argc, char **argv) /* {{{ */
 #endif
 
 	while (php_cli_loop_is_running) {
-		// Startup PHP
 		if (FAILURE == php_request_startup()) {
-			/* should never be happen */
 			return FAILURE;
 		}
 
