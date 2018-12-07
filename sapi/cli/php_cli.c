@@ -157,7 +157,7 @@ const opt_struct OPTIONS[] = {
 	{'h', 0, "help"},
 	{'i', 0, "info"},
 	{'l', 0, "syntax-check"},
-	{'L', 0, "loop"},
+	{'L', 1, "loop"},
 	{'m', 0, "modules"},
 	{'n', 0, "no-php-ini"},
 	{'q', 0, "no-header"}, /* for compatibility with CGI (do not generate HTTP headers) */
