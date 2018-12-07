@@ -245,18 +245,18 @@ static int php_cli_loop_run_script(const char *filename) /* {{{ */
 	zfd.opened_path = NULL;
 
 	zend_try {
-			zval retval;
+        zval retval;
 
-			ZVAL_UNDEF(&retval);
-			if (SUCCESS == zend_execute_scripts(ZEND_REQUIRE, &retval, 1, &zfd)) {
-				if (Z_TYPE(retval) != IS_UNDEF) {
-					// If it's `false` then stop
-					stop = Z_TYPE(retval) == IS_FALSE;
-					zval_ptr_dtor(&retval);
-				}
-			} else {
-				stop = 0;
-			}
+        ZVAL_UNDEF(&retval);
+        if (SUCCESS == zend_execute_scripts(ZEND_REQUIRE, &retval, 1, &zfd)) {
+            if (Z_TYPE(retval) != IS_UNDEF) {
+                // If it's `false` then stop
+                stop = Z_TYPE(retval) == IS_FALSE;
+                zval_ptr_dtor(&retval);
+            }
+        } else {
+            stop = 0;
+        }
 	} zend_end_try();
 
 	if (old_cwd[0] != '\0') {
